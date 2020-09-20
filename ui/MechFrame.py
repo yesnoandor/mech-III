@@ -37,14 +37,7 @@ Created on
 
 import wx
 from ui.ModulePanel import *
-
-
-class MyPanel2(wx.Panel):
-   def __init__(self, parent):
-      super(MyPanel2, self).__init__(parent)
-      lblList = ['Value X', 'Value Y', 'Value Z']
-      rbox = wx.RadioBox(self, label = 'RadioBox', pos = (25,10), choices = lblList,
-         majorDimension = 1, style = wx.RA_SPECIFY_ROWS)
+from ui.ChartPanel import *
 
 
 class MechFrame(wx.Frame):
@@ -73,7 +66,7 @@ class MechFrame(wx.Frame):
         self.modulePanel = ModulePanel(self.tabs)
 
         # 创建chart面板显示页
-        self.chartPanel = MyPanel2(self.tabs)
+        self.chartPanel = ChartPanel(self.tabs)
 
         # 增加多个选项页面
         self.tabs.AddPage(self.modulePanel, "Modules")
