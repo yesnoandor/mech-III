@@ -1,0 +1,8 @@
+[2020-10-11 09:46:05] - [logger.py] - [line:72] - yyx.log - [37mDEBUG - 一个debug信息[0m
+[2020-10-11 09:46:05] - [logger.py] - [line:75] - yyx.log - [34mINFO - 一个info信息[0m
+[2020-10-11 09:46:05] - [logger.py] - [line:78] - yyx.log - [33mWARNING - 一个warning信息[0m
+[2020-10-11 09:46:05] - [logger.py] - [line:81] - yyx.log - [31mWARNING - 一个error信息[0m
+[2020-10-11 09:46:05] - [logger.py] - [line:84] - yyx.log - [31mWARNING - 一个致命critical信息[0m
+[2020-10-11 09:46:05] - [logger.py] - [line:81] - yyx.log - [31mWARNING - hese service is down![0m
+[2020-10-11 09:46:05] - [logger.py] - [line:81] - yyx.log - [31mWARNING - hese service is down[0m
+[2020-10-11 09:46:05] - [logger.py] - [line:78] - yyx.log - [33mWARNING - 43 service is down![0m

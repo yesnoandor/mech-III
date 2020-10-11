@@ -1,0 +1,49 @@
+2020-10-10 14:53:15,251 - simple_example - DEBUG - debug message
+2020-10-10 14:53:15,251 - simple_example - INFO - info message
+2020-10-10 14:53:15,251 - simple_example - WARNING - warn message
+2020-10-10 14:53:15,251 - simple_example - ERROR - error message
+2020-10-10 14:53:15,251 - simple_example - CRITICAL - critical message
+warn message
+error message
+critical message
+warn message
+error message
+critical message
+debug message
+info message
+warn message
+error message
+critical message
+warn message
+error message
+critical message
+debug message
+info message
+warn message
+error message
+critical message
+debug message
+info message
+warn message
+error message
+critical message
+debug message
+info message
+warn message
+error message
+critical message
+debug message
+info message
+warn message
+error message
+critical message
+debug message
+info message
+warn message
+error message
+critical message
+debug message
+info message
+warn message
+error message
+critical message

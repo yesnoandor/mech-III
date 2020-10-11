@@ -42,6 +42,8 @@ Created on
 import sys
 import wx
 from wx.lib import newevent
+from pubsub import pub
+from system.config import system_config
 
 ModuleEvent, EVT_MODULE = newevent.NewEvent()
 
@@ -108,27 +110,28 @@ class ModulePanelBase(wx.Panel):
         return None
 
 
-players = [('Tendulkar', '15000', '100'), ('Dravid', '14000', '1'),
-           ('Kumble', '1000', '700'), ('KapilDev', '5000', '400'),
-           ('Ganguly', '8000', '50')]
-
-
 class ModuleListCtrl(wx.ListCtrl):
     def __init__(self, *args, **kwargs):
         super(ModuleListCtrl, self).__init__(*args, **kwargs)
 
+        self._monitor_modules_list = dict()
         self.AddColumns()
 
-        for i in players:
-            self.AddItem(i)
+        modules = system_config.get_module_monitor_name()
+
+        for module in modules:
+            item = (module, '', '')
+            self.AddItem(item)
 
         # 绑定事件处理
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(EVT_MODULE, self.OnModule)
 
         # 增加定时器，更新UI状态
-        self._update_ui = wx.PyTimer(self.UpdateUI)
-        self._update_ui.Start(1000)
+        # self._update_ui = wx.PyTimer(self.UpdateUI)
+        # self._update_ui.Start(1000)
+
+        pub.subscribe(self.OnReceiveModuleEvent, 'recv_module_event')
 
     def UpdateUI(self):
         print(self._update_ui)
@@ -151,10 +154,10 @@ class ModuleListCtrl(wx.ListCtrl):
         :return: None
         """
         width = self.GetSize().GetWidth()
-        self.InsertColumn(0, '', width=width * 0.05)
+        self.InsertColumn(0, 'Module', width=width * 0.05)
         self.InsertColumn(1, 'Name', wx.LIST_FORMAT_CENTER, width=width * 0.25)
         self.InsertColumn(2, 'Log', wx.LIST_FORMAT_CENTER, width=width * 0.7)
-        print("width = ", self.GetSize().GetWidth())
+        # print("width = ", self.GetSize().GetWidth())
 
     def AddItem(self, item):
         """
@@ -165,6 +168,17 @@ class ModuleListCtrl(wx.ListCtrl):
         index = self.InsertItem(sys.maxsize, item[0])
         self.SetItem(index, 1, item[1])
         self.SetItem(index, 2, item[2])
+        self._monitor_modules_list[item[0]] = index
+
+    def UpdateItemBackground(self, item_name, color):
+        """
+        更新每一行的记录
+        :param item_name:
+        :param color:
+        :return:
+        """
+        index = self._monitor_modules_list[item_name]
+        self.SetItemBackgroundColour(index, color)
 
     def OnSize(self, event):
         """
@@ -172,7 +186,7 @@ class ModuleListCtrl(wx.ListCtrl):
         :param event: 大小变化的事件
         :return: None
         """
-        print(type(event))
+        # print(type(event))
         width = self.GetSize().GetWidth()
 
         self.SetColumnWidth(0, width * 0.05)
@@ -192,6 +206,33 @@ class ModuleListCtrl(wx.ListCtrl):
         print(type(event))
         print("name = ", event.name)
         print("data = ", event.data)
+        pass
+
+    def OnReceiveModuleEvent(self, name, log, status):
+        """
+        接收监控Module的信息，并刷新界面
+        :param name:
+        :param log:
+        :param status:
+        :return:
+        """
+        #print("OnReceiveModuleEvent::+++++++++++++++")
+        #print("name = ", name)
+        #print("log = ", log)
+        #print("status = ", status)
+
+        if name in self._monitor_modules_list.keys():
+            index = self._monitor_modules_list[name]
+            self.SetItem(index, 1, name)
+            self.SetItem(index, 2, log)
+            if status == 'warning':
+                self.UpdateItemBackground(name, 'yellow')
+            elif status == 'err':
+                self.UpdateItemBackground(name, 'red')
+        else:
+            item = (name, log, status)
+            self.AddItem(item)
+        # wx.CallAfter()
         pass
 
 

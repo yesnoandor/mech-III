@@ -38,29 +38,28 @@ Created on
 
 """
 
-import wx
-from ui.MechFrame import MechFrame
+import sys
 
 
-class MechApp(wx.App):
-    """
-    应用程序对象, 必须是类wx.App或其定制的子类的一个实例。应用程序对象的主要目的是管理幕后的主事件循环
-    """
+class _const:
+    # 自定义异常处理
+    class ConstError(PermissionError):
+        pass
 
-    def __init__(self, redirect=False, filename=None, useBestVisual=False, clearSigInt=True):
-        super().__init__(redirect, filename, useBestVisual, clearSigInt)
-        self.frame = None
+    class ConstCaseError(ConstError):
+        pass
 
-    def OnInit(self):
-        self.frame = MechFrame(None, title='Mech-II')
-        self.frame.Centre()                     # 在显示器中居中显示
-        self.frame.Show()
-        self.SetTopWindow(self.frame)           # 当前frame设置为顶级窗口
+    # 重写 __setattr__() 方法
+    def __setattr__(self, name, value):
+        if name in self.__dict__:  # 已包含该常量，不能二次赋值
+            raise self.ConstError("Can't change const {0}".format(name))
+        if not name.isupper():  # 所有的字母需要大写
+            raise self.ConstCaseError("const name {0} is not all uppercase".format(name))
+        self.__dict__[name] = value
 
-        return True
 
+# 将系统加载的模块列表中的 constant 替换为 _const() 实例
+sys.modules[__name__] = _const()
 
 if __name__ == '__main__':
-    app = MechApp()
-    app.MainLoop()
     pass

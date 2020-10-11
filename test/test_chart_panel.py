@@ -38,190 +38,6 @@ Created on
 
 """
 
-import wx
-from wx.lib import scrolledpanel
-from wx.lib import newevent
-
-import matplotlib
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
-from matplotlib.ticker import MultipleLocator, FuncFormatter
-from matplotlib import pyplot
-import pylab
-import numpy as np
-from random import choice
-
-from collections import Iterable
-
-ChartEvent, EVT_CHART = newevent.NewEvent()
-
-
-class FigureCanvasBasePanel(wx.Panel):
-    def __init__(self, parent):
-        super().__init__(parent=parent)
-
-        """
-        fig, ax = pyplot.subplots(figsize=pyplot.figaspect(2.5 / 2))
-        self.figure = fig
-        self.axes = ax
-        self.FigureCanvas = FigureCanvas(self, -1, self.figure)
-
-        x = np.linspace(0, 2 * np.pi)  # 创建等差素列, 数据开始点为0, 数据结束点为2Pi，样本数量默认50
-        y = np.sin(x)
-        self.plot(x, y)
-        """
-
-    def UpdatePlot(self):
-        """
-        重新渲染，修改图形的任何属性后都必须重新调用来更新GUI界面
-        :return:
-        """
-        self.FigureCanvas.draw()
-
-    def plot(self, *args, **kwargs):
-        """
-        绘制画图区
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        self.axes.plot(*args, **kwargs)
-        self.UpdatePlot()
-        pass
-
-    def scatter(self, *args, **kwargs):
-        self.axes.scatter(*args, **kwargs)
-        self.UpdatePlot()
-
-    def loglog(self, *args, **kwargs):
-        """
-        在x和y轴上使用对数缩放比例绘制图
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        self.axes.loglog(*args, **kwargs)
-        self.UpdatePlot()
-
-    def semilogx(self, *args, **kwargs):
-        """
-        在x轴上使用对数缩放比例绘制图
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        self.axes.semilogx(*args, **kwargs)
-        self.UpdatePlot()
-
-    def semilogy(self, *args, **kwargs):
-        """
-        在y轴上使用对数缩放比例绘制图
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        ''''' #对数坐标绘图命令 '''
-        self.axes.semilogy(*args, **kwargs)
-        self.UpdatePlot()
-
-    def set_title(self, title):
-        """
-        给图像添加一个标题
-        :param title:
-        :return:
-        """
-        self.axes.set_title(title)
-
-    def set_xlabel(self, xlabel="X"):
-        """
-        设置x轴的标签
-        :param xlabel:
-        :return:
-        """
-        self.axes.set_xlabel(xlabel)
-
-    def set_ylabel(self, ylabel="Y"):
-        """
-        设置y轴的标签
-        :param ylabel:
-        :return:
-        """
-        self.axes.set_ylabel(ylabel)
-
-    def legend(self, *args, **kwargs):
-        """
-        设置图例
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        self.axes.legend(*args, **kwargs)
-
-    def grid(self, on=True):
-        """
-        配制网格线，显示网格
-        :param on:
-        :return:
-        """
-        self.axes.grid(on)
-
-    def xticker(self, major_ticker=1.0, minor_ticker=0.1):
-        """
-        设置X轴的刻度大小
-        :param major_ticker:
-        :param minor_ticker:
-        :return:
-        """
-        self.axes.xaxis.set_major_locator(MultipleLocator(major_ticker))
-        self.axes.xaxis.set_minor_locator(MultipleLocator(minor_ticker))
-
-    def yticker(self, major_ticker=1.0, minor_ticker=0.1):
-        """
-        设置Y轴的刻度大小
-        :param major_ticker:
-        :param minor_ticker:
-        :return:
-        """
-        self.axes.yaxis.set_major_locator(MultipleLocator(major_ticker))
-        self.axes.yaxis.set_minor_locator(MultipleLocator(minor_ticker))
-
-    def xlim(self, x_min, x_max):
-        """
-        设置X轴的显示范围
-        :param x_min:
-        :param x_max:
-        :return:
-        """
-        self.axes.set_xlim(x_min, x_max)
-
-    def ylim(self, y_min, y_max):
-        """
-        设置Y轴的显示范围
-        :param y_min:
-        :param y_max:
-        :return:
-        """
-        self.axes.set_ylim(y_min, y_max)
-
-    def savefig(self, *args, **kwargs):
-        """
-        保存图形到文件
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        self.Figure.savefig(*args, **kwargs)
-
-    def cla(self):
-        """
-        清空原来的图形,再次画图前,必须调用该命令
-        :return:
-        """
-        self.axes.clear()
-        self.figure.set_canvas(self.FigureCanvas)
-        self.UpdatePlot()
-
 
 class TestPanel0(FigureCanvasBasePanel):
     def __init__(self, parent):
@@ -237,7 +53,7 @@ class TestPanel0(FigureCanvasBasePanel):
     def plot(self, y):
         #x = np.linspace(0, 2 * np.pi)  # 创建等差素列, 数据开始点为0, 数据结束点为2Pi，样本数量默认50
         #y = np.sin(x)
-        # print("test-----------------")
+        print("test-----------------")
         self.cla()
 
         x = np.arange(10)
@@ -395,10 +211,10 @@ class TestPanel6(FigureCanvasBasePanel):
         y = np.random.rand(N)
         colors = np.random.rand(N)
         area = (30 * np.random.rand(N)) ** 2     # 0 to 15 point radii
-        # print(x)
-        # print(y)
-        # print(colors)
-        # print(area)
+        print(x)
+        print(y)
+        print(colors)
+        print(area)
 
         # 绘制散点图
         self.axes.scatter(x, y, s=area, c=colors, alpha=0.5)
@@ -469,15 +285,15 @@ class ChartPanel(scrolledpanel.ScrolledPanel):
         self.Bind(EVT_CHART, self.OnChart)
 
         # 增加定时器，更新UI状态
-        # self._update_ui = wx.PyTimer(self.UpdateUI)
-        # self._update_ui.Start(1000)
+        self._update_ui = wx.PyTimer(self.UpdateUI)
+        self._update_ui.Start(1000)
 
         self._data_test = list(range(0, 100, 10))
 
     def UpdateUI(self):
         foo = ['1', '2', '3']
         index = choice(foo)
-        # print("index = ", index)
+        print("index = ", index)
         if index == '1':
             val = [15, 30, 45, 10]
 
@@ -511,7 +327,7 @@ class ChartPanel(scrolledpanel.ScrolledPanel):
 
         elif index == '3':
 
-            # print("y1 = ", self._data_test)
+            print("y1 = ", self._data_test)
             a = np.random.randint(0, 100)
             print(a)
             print(self._data_test.pop())
@@ -537,27 +353,27 @@ class ChartPanel(scrolledpanel.ScrolledPanel):
         :param event: 自定义的事件
         :return:
         """
-        #print("OnChart!!!")
-        #print(type(event))
+        print("OnChart!!!")
+        print(type(event))
 
         if event.type == "PieChart":
-            # print("name = ", event.name)
-            # print("type = ", event.type)
-            # print("sizes = ", event.sizes)
-            # print("labels = ", event.labels)
+            print("name = ", event.name)
+            print("type = ", event.type)
+            print("sizes = ", event.sizes)
+            print("labels = ", event.labels)
             self.MPL2_2.plot(event.labels, event.sizes)
 
         elif event.type == "BarChart":
-            # print("name = ", event.name)
-            # print("type = ", event.type)
-            # print("data = ", event.data)
-            # print("labels = ", event.labels)
+            print("name = ", event.name)
+            print("type = ", event.type)
+            print("data = ", event.data)
+            print("labels = ", event.labels)
             self.MPL1_3.plot(event.data)
 
         elif event.type == "LineChart":
-            # print("name = ", event.name)
-            # print("type = ", event.type)
-            # print("data = ", event.data)
+            print("name = ", event.name)
+            print("type = ", event.type)
+            print("data = ", event.data)
             self.MPL1_1.plot(event.data)
         pass
 

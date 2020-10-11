@@ -1,62 +1,144 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+'''
+                   _ooOoo_
+                  o8888888o
+                  88" . "88
+                  (| -_- |)
+                  O\  =  /O
+               ____/`---'\____
+             .'  \\|     |//  `.
+            /  \\|||  :  |||//  \
+           /  _||||| -:- |||||-  \
+           |   | \\\  -  /// |   |
+           | \_|  ''\---/''  |   |
+           \  .-\__  `-`  ___/-. /
+         ___`. .'  /--.--\  `. . __
+      ."" '<  `.___\_<|>_/___.'  >'"".
+     | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+     \  \ `-.   \_ __\ /__ _/   .-` /  /
+======`-.____`-.___\_____/___.-`____.-'======
+                   `=---='
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         佛祖保佑       永无BUG
+
+
+
+@Date: 2020/5/19
+@Name: smartbox.py
+@Author: wenyu xu
+@Mail: wenyu__xu@163.com
+
+@Description:
+
+'''
+
 import wx
+import time
+import random
+import threading
+import logging
+from utils.logger import Logger
+from utils.logger import logger_mech
+from pubsub import pub
+from queue import Queue
+from ui.MechApp import MechApp
+from server.MechServer import ModuleServerThread
 
 
-# 自定义窗口类MyFrame
-class MyFrame(wx.Frame):
-    def __init__(self):
-        super().__init__(parent=None, title="菜单", size=(400, 300))
-        self.Center()  # 窗口居中
-        self.text = wx.TextCtrl(self, -1, style=wx.TE_MULTILINE)  # 创建一个多行文本控件
-        vbox = wx.BoxSizer(wx.VERTICAL)  # 创建一个垂直布局管理器
-        self.SetSizer(vbox)  # 为此窗口添加此布局管理器
-        vbox.Add(self.text, 1, flag=wx.EXPAND | wx.ALL, border=1)  # 将文本添加进当前窗口
+class MechThread(threading.Thread):
+    """  主线程 """
+    def __init__(self, name, data, event, app):
+        super().__init__(name=name)  # 调用父类(超类)的__init__()方法
 
-        menubar = wx.MenuBar()  # 创建一个菜单栏，
-        self.SetMenuBar(menubar)  # 给窗口添加此菜单栏
-        file_menu = wx.Menu()  # 创建一个菜单
-        menubar.Append(file_menu, 'File')  # 在菜单栏上添加此菜单
+        # 初始化日志类
+        self.__logger = Logger('mech.log', logging.DEBUG, logging.DEBUG)
 
-        file_menu.Append(id=wx.ID_NEW, item='New', helpString='new file')  # 往菜单中添加一个菜单项
-        self.Bind(wx.EVT_MENU, self.on_newitem_click, id=wx.ID_NEW)  # 为此菜单项添加事件处理
-        file_menu.AppendSeparator()  # 分割线
+        # 同步事件和队列的初始化
+        self.__queue = data
+        self.__event = event
+        self.__app = app
 
-        edit_menu = wx.Menu()  # 创建一个edit_menu菜单
-        file_menu.AppendSubMenu(edit_menu, "Edit")  # file_menu上面添加edit_menu菜单
-        copy_item = wx.MenuItem(edit_menu, 100, text="Copy", kind=wx.ITEM_NORMAL)  # 创建copy_item菜单项
-        edit_menu.Append(copy_item)  # edit_menu菜单添加copy_item菜单项
+        # Module Server 线程的初始化
+        self.__exit = threading.Event()
+        self.__module_server_thread = ModuleServerThread("ModuleServer", self.__queue, self.__event)
+        self.__module_server_thread.start()
+        self.__logger.info("Start ModuleServerThread...")
 
-        cut_item = wx.MenuItem(edit_menu, 101, text="Cut", kind=wx.ITEM_NORMAL)  # 创建cut_item菜单项
-        edit_menu.Append(cut_item)  # edit_menu菜单添加cut_item菜单项
+        """
+        # SQLite的初始化
+        self.__sql = simpleToolSql("smartbox")
 
-        paste_item = wx.MenuItem(edit_menu, 102, text="Paste", kind=wx.ITEM_NORMAL)  # 创建paste_item菜单项
-        edit_menu.Append(paste_item)  # edit_menu菜单添加paste_item菜单项
-        self.Bind(wx.EVT_MENU, self.on_editmenu_click, id=100, id2=102)  # 为这3个添加事件处理
+        cmd = '''create table if not exists smartbox(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                object text,
+                catalogue text,
+                name text,
+                timestamp NOT NULL DEFAULT (datetime('now','localtime'))
+                )'''
+        self.__sql.execute(cmd)
+        self.__sql.close()
+        """
 
-    def on_newitem_click(self, event):
-        self.text.SetLabel('单击【New】菜单')
+        # 状态机的初始化
+        # fsm.state = 'idle'
 
-    def on_editmenu_click(self, event):
-        event_id = event.GetId()
-        if event_id == 100:
-            self.text.SetLabel('单击【Copy】菜单')
-        elif event_id == 101:
-            self.text.SetLabel('单击【Cut】菜单')
-        else:
-            self.text.SetLabel('单击【Paste】菜单')
+    def run(self):
+        while True:
+            self.__event.wait(300)          # 等待触发事件, 300s超时退出
+            if self.__event.isSet():
+                print("get a event!")
+                self.__logger.logger.info("get a event!")
+                data = self.__queue.get()   # 获取数据
+            else:
+                print("timeout!")
+                self.__logger.logger.info("event timeout!")
+                data = [0, ]
 
+            # self.dispatchEvent(data)  # 分发事件处理
+            # self.__event.clear()  # 清除读事件，以方便下次读取
 
-class App(wx.App):
-    def OnInit(self):
-        # 创建窗口对象
-        frame = MyFrame()
-        frame.Show()
-        return True
+    def timeout_event_treat(self):
+        """
+        超时处理
+        :return:
+        """
+        pass
 
-    def OnExit(self):
-        print("quit")
-        return 0
+    def module_event_treat(self, data):
+        """
+
+        :param code:
+        :return:
+        """
+        self.__logger.info("get a module event: {}".format(data))
+        wx.CallAfter(pub.sendMessage, 'recv_module_event', name=data[0], log=data[1], status=data[2])
+
+    def dispatchEvent(self, val):
+        """ 事件分发处理 """
+        print("system event is {0}".format(val))
+        self.__logger.info("system event is {}".format(val))
+        event_func = {
+            0: lambda: self.timeout_event_treat(),
+            1: lambda: self.module_event_treat(val[1])
+        }
+        func = event_func[val[0]]
+        func()
+        pass
 
 
 if __name__ == '__main__':
-    app = App()
+    logger_mech.info('--主线程开始--')
+    queue = Queue()
+    event = threading.Event()
+    app = MechApp()
+
+    main_thread = MechThread("mech_thread", queue, event, app)
+    main_thread.start()
+
     app.MainLoop()
+
+    main_thread.join()
+
+    logger_mech.info('--主线程结束--')
